@@ -1,0 +1,33 @@
+<div class="page-sidebar sidebar">
+    <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 100%;">
+        <div class="page-sidebar-inner slimscroll" style="overflow: hidden; width: auto; height: 100%;">
+            <ul class="menu accordion-menu">
+                <li class="droplink">
+                    <a href="#" class="waves-effect waves-button">
+                        <span class="menu-icon glyphicon glyphicon-user"></span>
+                        <p>用户管理</p>
+                        <span class="arrow"></span>
+                    </a>
+                    <ul class="sub-menu" style="display: none;">
+                        <li><a href="/user">查询用户</a></li>
+                        <li><a href="/user/edit">添加用户</a></li>
+                    </ul>
+                </li>
+                <li class="droplink">
+                    <a href="#" class="waves-effect waves-button">
+                        <span class="menu-icon glyphicon glyphicon-th-list"></span>
+                        <p>账号管理</p>
+                        <span class="arrow"></span>
+                    </a>
+                    <ul class="sub-menu" style="display: none;">
+                        <li><a href="/account/check">查询账号</a></li>
+                        <li><a href="/account/edit">导入账号</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="slimScrollBar" style="width: 7px; position: absolute; top: 0px; opacity: 0.3; display: none; border-radius: 0px; z-index: 99; right: 0px; height: 768px; background: rgb(204, 204, 204);"></div>
+        <div class="slimScrollRail" style="width: 7px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 0px; opacity: 0.2; z-index: 90; right: 0px; background: rgb(51, 51, 51);"></div>
+    </div><!-- Page Sidebar Inner -->
+</div>
+{% block operate_menu %}{% end %}

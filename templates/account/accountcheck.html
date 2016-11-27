@@ -1,0 +1,102 @@
+{% extends "share/master.html" %}
+{% block title %}账号管理{% end %}{% block main %}
+<div class="page-inner">
+    <div class="page-title">                                                   
+        <h3>账号管理</h3>
+        <div class="page-breadcrumb">
+            <ol class="breadcrumb">
+                <li><a href="#">账号管理</a></li>
+                <li><a href="#">查询账号</a></li>
+            </ol>
+        </div>
+    </div>
+    <div id="main-wrapper">                                                             
+        <div class="row m-t-md">
+            <div class="col-md-12">
+                <div class="row mailbox-header">
+                    <div class="pull-left" style="padding:15px 0 0 15px;">
+                        <a href="/account/edit" class="btn btn-success">添加账号</a>
+                    </div>
+                    <!--
+                    <div class="pull-left" style="padding:15px 0 0 20px;">
+                        <a href="#" id="delete" class="btn btn-success">删除</a>
+                    </div> -->
+                    <div class="col-sm-3 col-xs-1 pull-right" style="width:50%">
+                        <form action="/account/check" method="get">
+                            <div class="input-group" style="width:1%; float:right; margin-right:8%;">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-success" type="submit" style="margin-right:20px"><i class="fa fa-search"></i></button>
+                                    </span>
+                                </div>
+                            <div class="form-group">
+                                <div class="input-group" style="float:right;">
+                                    <select id="account_id" name="account_id" class="selectpicker" data-width="100%" data-live-search="true">
+                                        <option value="0" {{ account_id == "0" and "selected=selected" or "" }}>账号查询</option>
+                                        {% for i in accounts %}
+                                            <option value="{{i._id}}" {{ str(i._id) == account_id and "selected=selected" or "" }}>{{i.account}}</option>
+                                        {% end %}
+                                    </select>       
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="mailbox-content panel">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <div id="example_wrapper" class="dataTables_wrapper">
+                                <table id="example" class="table dataTable display" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="1" style="width:6%">
+                                                <span><input id="selectall" type="checkbox" class="check-mail-all"></span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:13%">
+                                                <span>账号</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>密码</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>状态</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>登记时间</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in account %}
+                                        <tr class="unread">
+                                            <td>
+                                                <span><input type="checkbox" class="checkbox-mail cb" data-id={{ i._id}} /></span>
+                                            </td>
+                                                <td id="mod">
+                                                    <a href="/account/edit?id={{ i._id }}">
+                                                        {{ "account" in i and i.account or "" }}
+                                                    </a>
+                                                </td>
+                                            <td>
+                                                {{ "password" in i and i.password or "" }}
+                                            </td>
+                                            <td>
+                                                {{ "status" in i and i.status != 1 and '禁用' or '开启' }}
+                                            </td>
+                                            <td>
+                                                {{ "created" in i and i.created.strftime("%Y-%m-%d %H:%M:%S") or "" }}
+                                            </td>
+                                        </tr>
+                                    {% end %}
+                                    </tbody>
+                                </table>
+                                {% include "share/pagination.html" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}

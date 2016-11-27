@@ -1,0 +1,116 @@
+{% extends "share/master.html" %}
+{% block title %}用户管理{% end %}{% block main %}
+<div class="page-inner">
+    <div class="page-title">                                                   
+        <h3>用户管理</h3>
+        <div class="page-breadcrumb">
+            <ol class="breadcrumb">
+                <li><a href="#">用户管理</a></li>
+                <li><a href="/user">查询用户</a></li>
+            </ol>
+        </div>
+    </div>
+    <div id="main-wrapper">                                                             
+        <div class="row m-t-md">
+            <div class="col-md-12">
+                <div class="row mailbox-header">
+                    <div class="pull-left" style="padding:15px 0 0 15px;">
+                        <a href="/user/edit" class="btn btn-success">添加用户</a>
+                    </div>
+                    <!--
+                    <div class="pull-left" style="padding:15px 0 0 20px;">
+                        <a href="#" id="delete" class="btn btn-success">删除</a>
+                    </div>
+                    -->
+                    <div class="col-sm-3 col-xs-1 pull-right" style="width:50%">
+                        <form action="/user" method="get">
+                            <div class="input-group" style="width:1%; float:right; margin-right:8%;">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-success" type="submit" style="margin-right:20px"><i class="fa fa-search"></i></button>
+                                    </span>
+                                </div>
+                            <div class="form-group">
+                                <div class="input-group" style="float:right;">
+                                    <select id="user_id" name="user_id" class="selectpicker" data-width="100%" data-live-search="true">
+                                        <option value="0" {{ user_id == "0" and "selected=selected" or "" }}>用户名称</option>
+                                        {% for i in users %}
+                                            <option value="{{i._id}}" {{ str(i._id) == user_id and "selected=selected" or "" }}>{{i.username}}【{{i.userid}}】</option>
+                                        {% end %}
+                                    </select>       
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="mailbox-content panel">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <div id="example_wrapper" class="dataTables_wrapper">
+                                <table id="example" class="table dataTable display" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="1" style="width:6%">
+                                                <span><input id="selectall" type="checkbox" class="check-mail-all"></span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:13%">
+                                                <span>昵称</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>用户ID</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>手机</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>状态</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:12%">
+                                                <span>积分</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>注册时间</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for u in user %}
+                                        <tr class="unread">
+                                            <td>
+                                                <span><input type="checkbox" class="checkbox-mail cb" data-id={{ u._id}} /></span>
+                                            </td>
+                                                <td id="mod">
+                                                    <a href="/user/edit?id={{ u._id }}">
+                                                        {{ "username" in u and u.username or "" }}
+                                                    </a>
+                                                </td>
+                                            <td>
+                                                {{ "userid" in u and u.userid or "" }}
+                                            </td>
+                                            <td>
+                                                {{ "phone" in u and u.phone or "" }}
+                                            </td>
+                                            <td>
+                                                {{ "status" in u and u.status == 0 and "禁用" or "开启" }}
+                                            </td>
+                                            <td>
+                                                {{ "score" in u and round(u.score,2) or 0 }}
+                                            </td>
+                                            <td>
+                                                {{ "created" in u and u.created.strftime("%Y-%m-%d %H:%M:%S") or "" }}
+                                            </td>
+                                            
+                                        </tr>
+                                    {% end %}
+                                    </tbody>
+                                </table>
+                                {% include "share/pagination.html" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}

@@ -1,0 +1,103 @@
+{% extends "share/master.html" %}
+{% block title %}账号编辑{% end %}  
+{% block css %}
+<style type="text/css">
+    .radio {
+        display:none;
+    }
+</style>
+{% end %}                                          
+{% block main %}
+<div class="page-inner">
+    <div class="page-title">                
+        <h3>账号管理</h3>
+        <div class="page-breadcrumb">
+            <ol class="breadcrumb">
+                <li><a href="/account/check">账号查询</a></li>
+                <li class="active">账号编辑</li>
+            </ol>
+        </div>
+    </div>
+    <div id="main-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-white">
+                    <div class="panel-body">
+                        <div class="form-horizontal">
+                        <input id="id" type="hidden" value="{{ account and account._id or ""}}">
+                            <div class="form-group">
+                                <label for="account" class="col-sm-2 control-label">* 账号：</label>
+                                <div class="col-md-3">
+                                    {% if account %}
+                                        <input id="account" type="text" class="form-control" value="{{ account and account.account or "" }}" readonly />
+                                    {% else %}
+                                        <input id="account" type="text" class="form-control" placeholder="账号" value="{{ account and account.account or "" }}" />
+                                    {% end %}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="col-sm-2 control-label">* 密码：</label>
+                                <div class="col-md-3">
+                                    <input id="password" type="text" class="form-control" placeholder="密码" value="{{ account and "password" in account and account.password or "" }}" />
+                                </div>
+                            </div>
+                            <div id="status" class="form-group">
+                                <label class="col-md-2 control-label">* 状态：</label>
+                                <div class="col-md-4">
+                                    <div class="btn-group aa" data-toggle="buttons">
+                                        <label class="btn btn-default {{ account and "status" in account and account.status == 1 and "active" or "" }}">
+                                            <input style="height:30px" type="radio" name="status" class="status" value="1" />
+                                            开启
+                                        </label>
+                                        <label class="btn btn-default {{ account and "status" in account and account.status == 0 and "active" or "" }}">
+                                            <input type="radio" name="status" class="status" value="0" />
+                                            禁用
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>   
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <a id="save_account" href="#" class="btn btn-success" style="width:100px;margin-right:5px;">保存</a>
+                                    <button type="button" class="btn btn-default" style="width:80px;" onClick="javascript :history.back(-1);">返回</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- Page Inner -->
+{% end %}
+{% block script %}
+<script type="text/javascript">
+    $("#save_account").click(function() {
+        var data = {};
+        data["id"] = $("#id").val();
+        data["account"] = $("#account").val();
+        data["status"] = $("#status .active input").val();
+        data["password"] = $("#password").val();
+
+        $.post("/account/edit", data, function(res){
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                showMethod: 'fadeIn',
+                hideMethod: 'fadeOut',
+                timeOut: 1000
+            };
+
+            if(res.status === "ok") {
+                toastr.success('操作成功!', '操作成功');
+
+                setTimeout(function() {
+                    window.location.href = "/account/check"
+                }, 1000);
+            } else {
+                toastr.error(res.desc, '操作失败');
+            }
+        });
+    });
+</script> 
+{% end %}
