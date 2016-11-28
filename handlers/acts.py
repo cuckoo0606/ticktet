@@ -5,14 +5,24 @@
 # Email: hongyi@hewoyi.com.cn
 # Create Date: 2016-1-25
 
+
+import json
 import datetime
 import tornado.web
+import requests
 from bson import ObjectId
 from core.web import HandlerBase
 from framework.web import paging
+from core.service import hand_acts
 from framework.mvc.web import url, get_url
 from framework.data.mongo import db, Document, DBRef
 
+# import os
+# import sys
+# sys.path.append(os.path.abspath("../"))
+# reload(sys)
+# sys.setdefaultencoding('utf-8')
+# from task import auto_acts
 
 @url("/acts")
 class Acts(HandlerBase):
@@ -41,15 +51,29 @@ class Acts(HandlerBase):
         return self.template()
 
 
-@url("/order/edit")
-class OrderEdit(HandlerBase):
+@url("/price")
+class Price(HandlerBase):
 
     @tornado.web.authenticated
     def get(self):
         id = self.get_argument('id', '') or None
         act = db.acts.find_one({ '_id' : ObjectId(id) })
-        if not act:
-            return self.json({"status": "faild", "desc": "没有此场次!"})
 
-        self.context.act = act
+        try:
+            self.context.act = act
+            self.context.price = act.price
+        except Exception, e:
+            print e
 
+        return self.template()
+
+
+@url("/acts/update")
+class ActsUpdate(HandlerBase):
+    def post(self):
+        try:
+            hand_acts.check_acts()
+            return self.json({"status": "ok"})
+        except:
+            return self.json({"status": "faild", "desc": "刷新失败!"})
+        pass

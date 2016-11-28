@@ -1,0 +1,77 @@
+{% extends "share/master.html" %}
+{% block title %}场次管理{% end %}{% block main %}
+<div class="page-inner">
+    <div class="page-title">                                                   
+        <h3>场次价格</h3>
+    </div>
+    <div id="main-wrapper">                                                             
+        <div class="row m-t-md">
+            <div class="col-md-12">
+                <div class="mailbox-content panel">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <ul class="list-group">
+                                <li class="list-group-item list-group-item-success" style='width:30%'>节目: {{ act.name }}</li>
+                                <li class="list-group-item list-group-item-info" style='width:30%'>地址: {{ act.venueName }}</li>
+                            </ul>
+                            <div id="example_wrapper" class="dataTables_wrapper">
+                                <table id="example" class="table dataTable display table-striped" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>分场ID</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>价格</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>库存</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>数量限制</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:20%">
+                                                <span>备注</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:15%">
+                                                <span>演出时间</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for i in price %}
+                                        <tr class="unread">
+                                            <td>
+                                                <a href="/#/edit?id={{ i.productPlayId }}">
+                                                    {{ "productPlayId" in i and i.productPlayId or "" }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {{ "price" in i and i.price or "未知" }}
+                                            </td>
+                                            <td>
+                                                {{ "num" in i and i.num or "未知" }}
+                                            </td>
+                                            <td>
+                                                {{ "buylimit" in i and i.buylimit or "未知" }}
+                                            </td>
+                                            <td>
+                                                {{ "playinfo" in i and i.playinfo or "未知" }}
+                                            </td>
+                                            <td>
+                                                {{ "playdate" in i and i.playdate or "未知" }} {{ "time" in i and i.time or "未知" }}
+                                            </td>
+                                        </tr>
+                                    {% end %}
+                                    </tbody>
+                                </table>
+                                {% include "share/pagination.html" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}

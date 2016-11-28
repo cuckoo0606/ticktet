@@ -114,10 +114,6 @@ def check_acts():
         print e
 
 
-def job():
-    check_acts()
-
-
 if __name__ == '__main__':
     # schedule.every(600).seconds.do(job)
     # while True:

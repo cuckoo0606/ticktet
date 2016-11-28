@@ -14,12 +14,16 @@
         <div class="row m-t-md">
             <div class="col-md-12">
                 <div class="row mailbox-header">
+                    <div class="pull-left" style="padding:15px 0 0 15px;">
+                        <button id="update" type="button" class="btn btn-success" style="width:80px;">更新数据</button>
+                        <span>更新需要大概一分钟时间, 更新成功后, 右上角会有提示, 请勿重更新数据!</span>
+                    </div>
                     <div class="col-sm-2 col-xs-1 pull-right" style="width:20%">
                         <form action="/acts" method="get">
                             <div class="form-group">
                                 <div class="input-group">
                                     <select id="status" name="status" class="selectpicker" data-width="100%">
-                                        <option value="0" {{ status == "-1" and "selected=selected" or "" }}>状态</option>
+                                        <option value="-1" {{ status == "-1" and "selected=selected" or "" }}>状态</option>
                                         <option value="0" {{ status == "0" and "selected=selected" or "" }}>正常</option>
                                         <option value="1" {{ status == "1" and "selected=selected" or "" }}>预售</option>
                                         <option value="2" {{ status == "2" and "selected=selected" or "" }}>售罄</option>
@@ -78,7 +82,7 @@
                                                 {% end %}
                                             </td>
                                             <td>
-                                                <a href="/order/edit?id={{ i._id }}">
+                                                <a href="/price?id={{ i._id }}">
                                                     {{ "productId" in i and i.productId or "" }}
                                                 </a>
                                             </td>
@@ -114,4 +118,30 @@
         </div>
     </div>
 </div>
+{% end %}
+{% block script %}
+<script type="text/javascript">
+    $("#update").click(function() {
+        console.log(123);
+        $.post("/acts/update", function(res){
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                showMethod: 'fadeIn',
+                hideMethod: 'fadeOut',
+                timeOut: 1000
+            };
+
+            if(res.status === "ok") {
+                toastr.success('操作成功!', '操作成功');
+
+                setTimeout(function() {
+                    window.location.href = "/acts"
+                }, 1000);
+            } else {
+                toastr.error(res.desc, '操作失败');
+            }
+        });
+    });
+</script>
 {% end %}

@@ -14,9 +14,12 @@
         <div class="row m-t-md">
             <div class="col-md-12">
                 <div class="row mailbox-header">
-                    <div class="pull-left" style="padding:15px 0 0 15px;">
+                    <div class="pull-left form-group" style="padding:15px 0 0 15px;">
                         <a href="/account/edit" class="btn btn-success">添加账号</a>
+                        <input id="lefile" type="file" style="display:none">  
                     </div>
+                   <!--  <label class="control-lable">111</label>
+                    <input id="input1" type='file' class='file'> -->
                     <!--
                     <div class="pull-left" style="padding:15px 0 0 20px;">
                         <a href="#" id="delete" class="btn btn-success">删除</a>
@@ -100,3 +103,8 @@
     </div>
 </div>
 {% end %}
+<script type="text/javascript">  
+$('input[id=lefile]').change(function() {  
+$('#photoCover').val($(this).val());  
+});  
+</script>  
