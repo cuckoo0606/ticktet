@@ -19,14 +19,17 @@ class Acts(HandlerBase):
 
     @tornado.web.authenticated
     def get(self):
+        status = self.get_argument('status', '-1')
         key = self.get_argument('key', '')
         where = {}
         if key:
             where["$or"] = [ {'name' : { "$regex" : key }}, {'productId' : { "$regex" : key }}, {'venueName' : { "$regex" : key }} ]
 
+        if status != '-1':
+            where['status'] = int(status)
         acts = db.acts.find()
-
         self.context.key = key
+        self.context.status = status
         self.context.acts = acts
         self.context.act = acts
         self.context.paging = paging.parse(self)
@@ -49,3 +52,4 @@ class OrderEdit(HandlerBase):
             return self.json({"status": "faild", "desc": "没有此场次!"})
 
         self.context.act = act
+

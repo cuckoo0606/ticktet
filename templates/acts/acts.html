@@ -16,8 +16,15 @@
                 <div class="row mailbox-header">
                     <div class="col-sm-2 col-xs-1 pull-right" style="width:20%">
                         <form action="/acts" method="get">
-                            <div class="form-group" >
+                            <div class="form-group">
                                 <div class="input-group">
+                                    <select id="status" name="status" class="selectpicker" data-width="100%">
+                                        <option value="0" {{ status == "-1" and "selected=selected" or "" }}>状态</option>
+                                        <option value="0" {{ status == "0" and "selected=selected" or "" }}>正常</option>
+                                        <option value="1" {{ status == "1" and "selected=selected" or "" }}>预售</option>
+                                        <option value="2" {{ status == "2" and "selected=selected" or "" }}>售罄</option>
+                                        <option value="3" {{ status == "3" and "selected=selected" or "" }}>待定</option>
+                                    </select>
                                     <input id="key" name="key" type="text" class="form-control input-search" value="{{ key }}"  placeholder="关键字" style="width:120px;">
                                     <span class="input-group-btn">
                                         <button id="key_save" class="btn btn-success" type="submit">查找</button>
@@ -31,7 +38,7 @@
                     <div class="panel-body">
                         <div class="table-responsive">
                             <div id="example_wrapper" class="dataTables_wrapper">
-                                <table id="example" class="table dataTable display" width="100%">
+                                <table id="example" class="table dataTable display table-striped" width="100%">
                                     <thead>
                                         <tr>
                                             <th nowrap="nowrap" style="width:8%">
