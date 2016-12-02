@@ -18,6 +18,10 @@ from framework.mvc.web import url, get_url
 from framework.data.mongo import db, Document, DBRef
 
 
+def message(msg, status=-1, data=""):
+    return { "status" : status, "msg" : msg, "data" : data }
+
+
 @url("/api/task")
 class ApiTask(HandlerBase):
 
@@ -26,38 +30,30 @@ class ApiTask(HandlerBase):
             1,  status : -1
             2,  site : [yongle, damai]
             3,  时间判断
-            4,  校验: verify :  md5(年月日+类型+caonima)
+            4,  校验: sign :  md5(年月日+类型+caonima)
     '''
 
-    def code(self, site):
+    def code(self):
         date = time.strftime('%Y%m%d',time.localtime())
-        st = "{0}{1}caonima".format(date, site)
 
-        result = md5(st)
-
-        return result
+        return md5(date)
 
     def get(self):
-        site = self.get_argument("site", "yongle")
-        verify = self.get_argument("verify", "")
+        sign = self.get_argument("sign", "")
 
-        if not verify:
-            return self.json({"status": "faild", "desc": "not verify!"})
+        if not sign:
+            return self.json(message("not sign"))
 
-        if site not in [ "yongle" ]:
-            return self.json({"status": "faild", "desc": "invalid site"})
+        code = self.code()
 
-        code = self.code(site)
-
-        if code != verify:
-            return self.json({"status": "faild", "desc": "error verify"})
+        if code != sign:
+            return self.json(message("invalid sign"))
 
         now = datetime.datetime.now()
 
         try:
             where = {}
             where['status'] = -1
-            where['site'] = site
             where['starttime'] = { "$lte" : now }
             where['endtime'] = { "$gte" : now }
 
@@ -66,55 +62,55 @@ class ApiTask(HandlerBase):
             if order:
                 result = Document()
                 result.id = str(order._id)
-                result.count = str(order.count)
+                result.count = order.count
                 result.productId = order.productId
                 result.productPlayIds = order.productPlayIds
                 result.maxprice = order.maxprice
                 result.minprice = order.minprice
+                result.starttimestamp = order.starttimestamp
+                result.endtimestamp = order.endtimestamp
+                result.site = order.site
 
-                return self.json({"status": "ok", "desc": result})
+                return self.json(message("success", 0, result))
             else:
-                return self.json({"status": "faild", "desc": "nothing"})
-
+                return self.json(message("order is None", 404))
         except:
-            return self.json({"status": "faild", "desc": "system error"})
+            return self.json(message("error system"))
 
 
 @url("/api/update")
 class ApiUpdate(HandlerBase):
 
     '''
-        hashlib.md5(src).hexdigest().upper()
+        hashlib.md5(src).hexdigest()
         更新订单状态
             1,  状态 -1 >> 1, 添加log
-            2,  校验: verify :  md5(年月日+id+caonima)
+            2,  校验: sign :  md5(年月日+id)
     '''
 
     def code(self, id):
         date = time.strftime('%Y%m%d',time.localtime())
-        st = "{0}{1}caonima".format(date, id)
+        st = "{0}{1}".format(date, id)
 
-        result = md5(st)
-
-        return result
+        return md5(st)
 
     def post(self):
         id = self.get_argument("id", "") or None
-        verify = self.get_argument("verify", "")
+        sign = self.get_argument("sign", "")
 
         code = self.code(id)
-        if code != verify:
-            return self.json({"status": "faild", "desc": "error verify"})
+        if code != sign:
+            return self.json(message("invalid sign"))
 
         try:
             order = db.order.find_one({ "_id" : ObjectId(id), "status" : -1 })
             if not order:
-                return self.json({"status": "faild", "desc": "invalid id"})
+                return self.json(message("order is None", 404))
         except:
-            return self.json({"status": "faild", "desc": "invalid id"})
+            return self.json(message("invalid id"))
 
         db.order.find_one_and_update({ "_id" : ObjectId(id) }, { "$set" : { "status" : 1 } })
-        return self.json({"status": "ok", "desc": "success"})
+        return self.json(message(0, "success"))
 
 
 @url("/api/account")
@@ -123,24 +119,19 @@ class ApiAccount(HandlerBase):
     '''
         hashlib.md5(src).hexdigest().upper()
         获取账号
-            1,  校验: verify :  md5(年月日+caonima)
+            1,  校验: sign :  md5(年月日+caonima)
     '''
 
     def code(self):
         date = time.strftime('%Y%m%d',time.localtime())
-        st = "{0}caonima".format(date)
-
-        result = md5(st)
-
-        return result
+        return md5(date)
 
     def get(self):
-        verify = self.get_argument("verify", "")
+        sign = self.get_argument("sign", "")
 
         code = self.code()
-        if code != verify:
-            return self.json({"status": "faild", "desc": "error verify"})
-
+        if code != sign:
+            return self.json(message("invalid sign"))
         try:
             result = []
             accounts = db.account.find({ "status" : 1 })
@@ -148,9 +139,9 @@ class ApiAccount(HandlerBase):
                 for i in accounts:
                     result.append({ "account" : i.account, "password" : i.password })
 
-            return self.json({"status": "ok", "desc": result})
+            return self.json(message("success", 0, result))
         except:
-            return self.json({"status": "faild", "desc": "system error"})
+            return self.json(message("error system"))
 
 
 # @url("/api/finished")
@@ -159,7 +150,7 @@ class ApiAccount(HandlerBase):
 #     '''
 #         hashlib.md5(src).hexdigest().upper()
 #         获取账号
-#             1,  校验: verify :  md5(年月日+caonima)
+#             1,  校验: sign :  md5(年月日+caonima)
 #     '''
 
 #     def code(self, id):
@@ -172,11 +163,11 @@ class ApiAccount(HandlerBase):
 
 #     def post(self):
 #         id = self.get_argument("id", "") or None
-#         verify = self.get_argument("verify", "")
+#         sign = self.get_argument("sign", "")
 
 #         code = self.code(id)
-#         if code != verify:
-#             return self.json({"status": "faild", "desc": "error verify"})
+#         if code != sign:
+#             return self.json({"status": "faild", "desc": "error sign"})
 
 #         try:
 #             order = db.order.find_one({ "_id" : ObjectId(id), "status" : -1 })
