@@ -109,7 +109,10 @@ class ApiUpdate(HandlerBase):
         except:
             return self.json(message("invalid id"))
 
-        db.order.find_one_and_update({ "_id" : ObjectId(id) }, { "$set" : { "status" : 1 } })
+        # 更新订单
+        log = order.log
+        log.append({ "addon" : datetime.datetime.now(), "desc" : "开始抢购。", "operator" : "系统" })
+        db.order.find_one_and_update({ "_id" : ObjectId(id) }, { "$set" : { "status" : 1, "log" : log } })
         return self.json(message(0, "success"))
 
 

@@ -11,16 +11,17 @@
 {% block main %}
 <div class="page-inner">
     <div class="page-title">
-        <div class="of">
+        <div class="of" style="width:50%">
             <p>{{ order.act.name }}</p>
-            <p>演出时间: {{ order.act.beginDate }}──{{ order.act.finishDate }}</p>
-        </div>
-        <div class="ow">
             <p>{{ order.act.venueName }}</p>
+        </div>
+        <div class="ow" style:"float:right">
+            <p></p>
             <p></p>
         </div>
-        <div class="om pull-right">
-            <!-- <span>订单金额：</span><span>￥111</span> -->
+        <div class="ow pull-right">
+            <p></p>
+            <p>演出时间: {{ order.act.beginDate }}──{{ order.act.finishDate }}</p>
         </div>
     </div>
     <div id="main-wrapper">
