@@ -15,6 +15,11 @@
             <div class="col-md-12">
                 <div class="row mailbox-header">
                     <div class="pull-left form-group" style="padding:15px 0 0 15px;">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                          导入账号(.txt)
+                        </button>
+                    </div>
+                    <div class="pull-left form-group" style="padding:15px 0 0 15px;">
                         <a href="/account/edit" class="btn btn-success">添加账号</a>
                         <input id="lefile" type="file" style="display:none">  
                     </div>
@@ -102,9 +107,63 @@
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h3 class="modal-title" id="myModalLabel" style="margin-left:15px">导入账号</h3>
+      </div>
+      <div class="modal-body">
+        <form id="main-form" action="/account/import" enctype="multipart/form-data" method="post">
+            <input id="file" name="file" type="file" style="display:none">
+            <div class="form-group">
+                <label for="title" class="col-md-1 control-label"><a class="btn btn-primary" onclick="$('input[id=file]').click();">选择</a></label>
+                <div class="col-md-4">
+                    <input id="photoCover" class="form-control" placeholder='.txt文件' type="text" style="width:200px;">
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <input id="submitBtn" type="button" value="上传" class="btn btn-success">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% end %}
+{% block script %}
 <script type="text/javascript">  
-$('input[id=lefile]').change(function() {  
-$('#photoCover').val($(this).val());  
-});  
+    $(function() {
+        $('#submitBtn').click(function(res){
+            $(this).attr('disabled','disabled');
+            $('#main-form').submit();
+
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                showMethod: 'fadeIn',
+                hideMethod: 'fadeOut',
+                timeOut: 1000
+            };
+
+            if(res.status === "ok") {
+                toastr.success('操作成功!', '操作成功');
+
+                setTimeout(function() {
+                    window.location.href = "/account/check"
+                }, 1000);
+            } else {
+                toastr.error(res.desc, '操作失败');
+            }
+
+        })
+        $('input[id=file]').change(function() {
+            $('#photoCover').val($(this).val());
+        });
+    })
 </script>  
+{% end %}

@@ -51,7 +51,7 @@ class Application(tornado.web.Application):
             for k, v in self.ui_modules.items():
                 print k, v
 
-        super(Application, self).listen(port, address=address, **kwargs)
+        super(Application, self).listen(port, address=address, xheaders=True, **kwargs)
 
 
     def add_handlers(self, host_pattern, host_handlers):

@@ -1,0 +1,65 @@
+{% extends "share/master.html" %} 
+{% block title %}归属地查询{% end %}
+
+{% block main %}
+<div class="page-inner">
+    <div class="page-title">
+        <h3>归属地查询</h3>
+        <div class="page-breadcrumb">
+            <ol class="breadcrumb">
+                <li><a href="#">实用工具</a></li>
+                <li class="active"><a href="/mobile">归属地查询</a></li>
+            </ol>
+        </div>
+    </div>
+    <div id="main-wrapper">
+        <div class="row m-t-md">
+            <div class="col-md-12">
+                <!-- <form action="/mobile" method="get"> -->
+                    <div class="form-inline" style="margin-left:40%; margin-top:100px;">
+                        <div class="input-group">
+                          <input id="id" type="text" class="form-control" placeholder="手机号码" />
+                          <!-- <button id="key_save" class="btn btn-success" type="submit">查询</button> -->
+                          <a href="/mobile?id={{id}}"><button id="check" class="btn btn-success">查询</button></a>
+                        </div>
+                        <h1>{{ result }}</h1>
+                    </div>
+                <!-- </form> -->
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
+{% block script %}
+<script type="text/javascript">
+    $(function() {
+
+        $("#check").click(function() {
+            var data = {};
+            data['id'] = $("#id").val();
+            data['mobile'] = $("#mobile").val();
+
+            $.post("/mobile", data, function(res){
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    showMethod: 'fadeIn',
+                    hideMethod: 'fadeOut',
+                    timeOut: 1000
+                };
+
+                if(res.status === "ok") {
+                    toastr.success('操作成功!', '操作成功');
+
+                    setTimeout(function() {
+                        window.location.href = "/mobile"
+                    }, 1000);
+                } else {
+                    toastr.error(res.desc, '操作失败');
+                }
+            });
+
+        })
+    })
+</script>
+{% end %}

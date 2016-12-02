@@ -11,23 +11,38 @@
                     <div class="panel-body">
                         <div class="table-responsive">
                             <ul class="list-group">
-                                <li class="list-group-item list-group-item-success" style='width:30%'>节目: {{ act.name }}</li>
-                                <li class="list-group-item list-group-item-info" style='width:30%'>地址: {{ act.venueName }}</li>
+                                <input id="productId" type="hidden" value="{{ act.productId }}" />
+                                <li class="list-group-item list-group-item-info" style='width:100%'>场次ID: {{ act.productId }}</li>
+                                <li class="list-group-item list-group-item-info" style='width:100%'>节目: {{ act.name }}</li>
+                                <li class="list-group-item list-group-item-info" style='width:100%'>地址: {{ act.venueName }}</li>
                             </ul>
+                            <div class="form-inline" style="padding-top:0px; padding-bottom:30px;">
+                                <div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon">￥</span>
+                                        <input type="text" id="minprice" class="form-control" style='width:15%;' placeholder='最小金额(元)'>
+                                        <input type="text" id="maxprice" class="form-control" style='width:15%;' placeholder='最大金额(元)'>
+                                        <input type="text" id="count" class="form-control" style='width:10%;' placeholder='购买数量'>
+                                        <input id="starttime" name="starttime" class="form-control form_date starttime" type="text" placeholder="开始抢购时间" style="width:20%;background-color:white;" readonly>
+                                        <input id="endtime" name="endtime" class="form-control form_date starttime" type="text" placeholder="结束抢购时间" style="width:20%;background-color:white;" readonly>
+                                        <button type="button" id='conform' class="btn btn-success">预约抢购</button>
+                                    </div>
+                                </div>
+                            </div>
                             <div id="example_wrapper" class="dataTables_wrapper">
                                 <table id="example" class="table dataTable display table-striped" width="100%">
                                     <thead>
                                         <tr>
-                                            <th nowrap="nowrap" style="width:10%">
+                                            <th nowrap="nowrap" style="width:15%">
                                                 <span>分场ID</span>
                                             </th>
-                                            <th nowrap="nowrap" style="width:10%">
+                                            <th nowrap="nowrap" style="width:15%">
                                                 <span>价格</span>
                                             </th>
-                                            <th nowrap="nowrap" style="width:10%">
+                                            <th nowrap="nowrap" style="width:15%">
                                                 <span>库存</span>
                                             </th>
-                                            <th nowrap="nowrap" style="width:10%">
+                                            <th nowrap="nowrap" style="width:15%">
                                                 <span>数量限制</span>
                                             </th>
                                             <th nowrap="nowrap" style="width:20%">
@@ -39,29 +54,29 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    {% for i in price %}
-                                        <tr class="unread">
-                                            <td>
-                                                <a href="/#/edit?id={{ i.productPlayId }}">
+                                    {% if price %}
+                                        {% for i in price %}
+                                            <tr class="unread">
+                                                <td>
                                                     {{ "productPlayId" in i and i.productPlayId or "" }}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                {{ "price" in i and i.price or "未知" }}
-                                            </td>
-                                            <td>
-                                                {{ "num" in i and i.num or "未知" }}
-                                            </td>
-                                            <td>
-                                                {{ "buylimit" in i and i.buylimit or "未知" }}
-                                            </td>
-                                            <td>
-                                                {{ "playinfo" in i and i.playinfo or "未知" }}
-                                            </td>
-                                            <td>
-                                                {{ "playdate" in i and i.playdate or "未知" }} {{ "time" in i and i.time or "未知" }}
-                                            </td>
-                                        </tr>
+                                                </td>
+                                                <td>
+                                                    {{ "price" in i and i.price or "未知" }}
+                                                </td>
+                                                <td>
+                                                    {{ "num" in i and i.num != -1 and i.num or "未知" }}
+                                                </td>
+                                                <td>
+                                                    {{ "buylimit" in i and i.buylimit or "未知" }}
+                                                </td>
+                                                <td>
+                                                    {{ "playinfo" in i and i.playinfo or "未知" }}
+                                                </td>
+                                                <td>
+                                                    {{ "playdate" in i and i.playdate or "未知" }} {{ "time" in i and i.time or "未知" }}
+                                                </td>
+                                            </tr>
+                                        {% end %}
                                     {% end %}
                                     </tbody>
                                 </table>
@@ -74,4 +89,53 @@
         </div>
     </div>
 </div>
+{% end %}
+{% block script %}
+<script type="text/javascript">
+    $(function() {
+        $('.form_date').datetimepicker({
+            language: 'fr',
+            weekStart: 0,
+            todayBtn: 1,
+            autoclose: true,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 0,
+            maxView: 5,
+            forceParse: 0,
+            format:'yyyy-mm-dd hh:ii',
+            minuteStep:1
+        });
+
+        $("#conform").click(function() {
+            var data = {};
+            data['productId'] = $("#productId").val();
+            data['minprice'] = $("#minprice").val();
+            data['maxprice'] = $("#maxprice").val();
+            data['count'] = $("#count").val()
+            data['starttime'] = $("#starttime").val()
+            data['endtime'] = $("#endtime").val()
+            console.log(data);
+            $.post("/price", data, function(res){
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    showMethod: 'fadeIn',
+                    hideMethod: 'fadeOut',
+                    timeOut: 1000
+                };
+
+                if(res.status === "ok") {
+                    toastr.success('操作成功!', '操作成功');
+
+                    setTimeout(function() {
+                        window.location.href = "/order"
+                    }, 1000);
+                } else {
+                    toastr.error(res.desc, '操作失败');
+                }
+            });
+        });
+    })
+</script>
 {% end %}

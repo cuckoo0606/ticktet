@@ -19,22 +19,19 @@ from framework.data.mongo import db, Document, DBRef
 
 
 def getIpInfo(ip):
-    baidu = "http://ip.taobao.com/service/getIpInfo.php?ip="
-    url = baidu + ip
+    url = "http://api.ip138.com/query/?ip={0}&token=894d33dfaa2f3e2607feea44fa714b20".format(ip)
     try:
+        # import pdb
+        # pdb.set_trace()
         r = requests.get(url, timeout=5)
-        text = json.loads(r.text)
-
-        if text and text["code"] == 0 and "data" in text and text["data"]:
-            data = text["data"]
-            country = data["country"]
-            region = data["region"]
-            city = data["city"]
-
-            st = "%s%s%s" % (country, region, city)
-            ipinfo = "%s(%s)" % (ip, st)
-        else:
-            ipinfo = "%s(未知)" % (ip)
+        result = json.loads(r.text)
+        print result
+        if result['ret'] == "ok":
+            data = result['data']
+            if len(data) == 6:
+                ipinfo = "{0}{1}{2}{3}".format(data[0], data[1], data[2], data[3])
+            else:
+                ipinfo = "%s(未知)" % (ip)
     except Exception, e:
         print e
         ipinfo = "%s(未知)" % (ip)
@@ -58,4 +55,4 @@ if __name__ == "__main__":
     schedule.every(1).seconds.do(job)
     while True:
         schedule.run_pending()
-        time.sleep(10)
+        time.sleep(1)

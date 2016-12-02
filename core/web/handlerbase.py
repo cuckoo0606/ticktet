@@ -54,47 +54,12 @@ class HandlerBase(RequestHandler):
         self.set_header("Content-Type", content_type)
         self.write(json.dumps(obj, cls=cls).replace("</", "<\\/"))
 
-    def write_error(self, status_code, **kwargs):
-        if status_code in [401, 403, 404, 500, 503]:
-            kwargs["message"] = status_code
-            self.render("error/401.html", **kwargs)
-        else:
-            self.write("BOOM!")
-
-    def get_lower_user(self):
-        """
-            获取当前用户自己和自己的下级
-        """
-        current_user = self.context.current_user
-        c_role = current_user.userrole.fetch().roleid
-
-        if c_role == "admin":
-            reg = "^/admin"
-        else:
-            reg = "^%s" % current_user.relation
-
-        return reg
-
-    def get_lower_notuser(self):
-        """
-            获取当前用户的下级
-        """
-        current_user = self.context.current_user
-        c_role = current_user.userrole.fetch().roleid
-
-        if c_role == "admin":
-            reg_user = "^/admin/"
-        else:
-            reg_user = "^%s/" % current_user.relation
-
-        return reg_user
-
     def system_record(self, user, logtype, operation, content):
         """
             搜集系统异常并写入系统日志
             字段:
                 用户(DBRef/管理员/系统)
-                类型 0(系统错误) 1(登陆记录) 2(资金变动) 3(用户操作[增删改]) 99(资金调整)
+                类型 -1(系统错误) 1(登陆记录) 2(预约) 3(归属地查询) 4(IP查询) 5(数据更新)
                 模块
                 操作
                 内容
@@ -117,19 +82,3 @@ class HandlerBase(RequestHandler):
         log.ip = ip
 
         db.systemlog.save(log)
-
-
-def find_parents(user, parents):
-    """
-        查询非管理员的上级
-    """
-    if user and user.parent:
-        try:
-            parent = user.parent.fetch()
-            if parent and parent.userrole.fetch().roleid != "admin":
-                parents.append(parent)
-                find_parents(parent, parents)
-        except Exception as e:
-            print e
-            return []
-    return parents

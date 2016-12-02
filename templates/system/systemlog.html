@@ -1,0 +1,174 @@
+{% extends "share/master.html" %} 
+{% block title %}系统日志{% end %}
+
+{% block main %}
+<div class="page-inner">
+    <div class="page-title">
+        <h3>系统日志</h3>
+        <div class="page-breadcrumb">
+            <ol class="breadcrumb">
+                <li><a href="#">系统管理</a></li>
+                <li class="active"><a href="/systemlog">系统日志</a></li>
+            </ol>
+        </div>
+    </div>
+    <div id="main-wrapper">
+        <div class="row m-t-md">
+            <div class="col-md-12">
+                <div class="form-inline" style="margin-bottom:20px">
+                    <form action="/systemlog" method="get">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <select class="selectpicker" data-live-search="true" id="receiver" name="receiver" data-width="100%" title="查询用户" >
+                                    <option value="-1" receiver="-1" and "selected=selected" or "" }}>选择用户</option>
+                                    {% for i in users %}
+                                        <option value="{{ i._id }}" {{ str(i._id) in receiver and "selected=selected" or "" }}>{{i.username}}【{{i.userid}}】</option>
+                                    {% end %}
+                                    </optgroup>
+                                </select>       
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <select id="logtype" name="logtype" class="selectpicker" data-width="100%">
+                                    <option value="-1" {{ logtype == "-1" and "selected=selected" or "" }}>日志类型</option>
+                                    <option value="1" {{ logtype == "1" and "selected=selected" or "" }}>登陆记录</option>
+                                    <option value="2" {{ logtype == "2" and "selected=selected" or "" }}>订单预约</option>
+                                    <option value="3" {{ logtype == "3" and "selected=selected" or "" }}>归属地查询</option>
+                                    <option value="99" {{ logtype == "99" and "selected=selected" or "" }}>IP查询</option>
+                                    <option value="99" {{ logtype == "99" and "selected=selected" or "" }}>数据更新</option>
+                                </select>       
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input id="starttime" name="starttime" class="form-control form_date starttime" type="text" value="{{ starttime }}" placeholder="开始时间" style="width:100px;background-color:white;" readonly>
+                        </div>
+                        <div class="form-group">
+                            <input id="endtime" name="endtime" class="form-control form_date starttime" type="text" value="{{ endtime }}" placeholder="结束时间" style="width:100px;background-color:white;" readonly>
+                        </div>
+                        <div class="form-group" >
+                            <div class="input-group">
+                                <input id="key" name="key" type="text" class="form-control input-search" value="{{ key }}"  placeholder="关键字" style="width:120px;">
+                                <span class="input-group-btn">
+                                    <button id="key_save" class="btn btn-success" type="submit">查找</button>
+                                    <!-- <a id="export" href="#" class="btn btn-default">导出</a> -->
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="mailbox-content panel">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <div id="example_wrapper" class="dataTables_wrapper">
+                                <table id="example" class="table dataTable display">
+                                    <thead>
+                                        <tr>
+                                            <th nowrap="nowrap">
+                                                <span>操作用户</span>
+                                            </th>
+                                            <th nowrap="nowrap">
+                                                <span>操作类型</span>
+                                            </th>
+                                            <th nowrap="nowrap">
+                                                <span>操作模块</span>
+                                            </th>
+                                            <th nowrap="nowrap">
+                                                <span>操作功能</span>
+                                            </th>
+                                            <th nowrap="nowrap">
+                                                <span>操作时间</span>
+                                            </th>
+                                            <th nowrap="nowrap">
+                                                <span>操作IP</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for r in systemlog %}
+                                        <tr class="unread">
+                                            <td>
+                                                {{ r.user in ["管理员", "系统"] and r.user or r.user.fetch().username }}
+                                            </td>
+                                            <td>
+                                                {% set kvs = {0:"系统异常", 1:"登陆记录", 2:"订单预约", 3:"归属地查询", 4:"IP查询", 5:"数据更新"} %}
+                                                {{ kvs[r.logtype] }}
+                                            </td>
+                                            <td>
+                                                {{ r.module }}
+                                            </td>
+                                            <td>
+                                                {{ r.operation }}
+                                            </td>
+                                            <td>
+                                                {{ r.createtime.strftime("%Y-%m-%d %H:%M:%S") }}
+                                            </td>
+                                            <td>
+                                                {{ r.ip }}
+                                            </td>
+                                        </tr>
+                                        {% end %}
+                                    </tbody>
+                                </table>
+                                {% include "share/pagination.html" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
+{% block script %}
+<script type="text/javascript">
+    $('.form_date').datetimepicker({                                         
+        language: 'fr',
+        weekStart: 0,
+        todayBtn: 1,
+        autoclose: true,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        maxView: 5,
+        forceParse: 0,
+        format:'yyyy-mm-dd',
+        minuteStep:1
+    });
+
+    $("#export").on("click", function(){
+        start = $("#starttime").val();
+        end = $("#endtime").val();
+        key = $("#key").val();
+        channel = $("#channel").val()
+        logtype = $("#logtype option:selected").val();
+
+        if(typeof(channel) == "undefined") {
+            var channel = "0";
+        }
+
+        receiver = new Array();
+        $("#receiver option:selected").each(function(index, e) {
+            receiver.push($(e).val());
+        });
+
+        var data = "starttime=" + start + "&endtime=" + end + "&key=" + key + "&logtype=" + logtype + "&receiver=" + receiver.toString() + "&channel=" + channel;
+
+        $.download("/system/log/export", data, "get")
+    })
+
+    jQuery.download = function(url, data, method){    // 获得url和data
+        if( url && data ){ 
+            // data 是 string 或者 array/object
+            data = typeof data == 'string' ? data : jQuery.param(data);        // 把参数组装成 form的  input
+            var inputs = '';
+            jQuery.each(data.split('&'), function(){ 
+                var pair = this.split('=');
+                inputs+='<input type="hidden" name="'+ pair[0] +'" value="'+ pair[1] +'" />'; 
+            });        // request发送请求
+            jQuery('<form action="'+ url +'" method="'+ (method||'post') +'">'+inputs+'</form>')
+            .appendTo('body').submit().remove();
+        };
+    };
+</script>
+{% end %}

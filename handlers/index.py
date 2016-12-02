@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- encoding:utf-8 -*-
 
-# Author: hongyi
-# Email: hongyi@hewoyi.com.cn
-# Create Date: 2016-1-25
+# Author: cuckoo
+# Email: 454045250@qq.com
+# Create Date: 2016-11-29
 
 import os
 import tornado.web

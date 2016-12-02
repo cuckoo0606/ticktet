@@ -1,0 +1,81 @@
+{% extends "share/master.html" %}
+{% block css %}
+<link href="{{ static_url("css/pay.css") }}" rel="stylesheet">
+
+<style>
+    .page-title {
+        height: 90px;
+    }
+</style>
+{% end %}
+{% block main %}
+<div class="page-inner">
+    <div class="page-title">
+        <div class="of">
+            <p>{{ order.act.name }}</p>
+            <p>演出时间: {{ order.act.beginDate }}──{{ order.act.finishDate }}</p>
+        </div>
+        <div class="ow">
+            <p>{{ order.act.venueName }}</p>
+            <p></p>
+        </div>
+        <div class="om pull-right">
+            <!-- <span>订单金额：</span><span>￥111</span> -->
+        </div>
+    </div>
+    <div id="main-wrapper">
+        <div class="row">
+            <div class="panel panel-white">
+            <div class="qr_code">
+                <div class="col-md-12">
+                    <div class="page-header">
+                       <h4>
+		           日志跟踪
+        	           {% set kvs = { -1 : "已预约", 1 : "已执行", 2 : "已开始", 3 : "已成功", 4 : "已失败" } %}
+		       	   <small style="font-size:16px;" class="pull-right">
+  			           订单状态：{{ kvs[order.status] }}
+                           </small>
+                       </h4>
+                    </div>
+                    <table class="table dataTable display">
+                        <thead>
+                            <tr>
+                                <th nowrap="nowrap">
+                                    <span>处理时间</span>
+                                </th>
+                                <th nowrap="nowrap">
+                                    <span>处理信息</span>
+                                </th>
+                                <th nowrap="nowrap">
+                                    <span>操作人</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for l in order.log %}
+                            <tr class="unread">
+                                <td style="width:40%">
+                                    {{ l.addon.strftime("%Y-%m-%d %H:%M:%S") }}
+                                </td>
+                                <td style="width:40%">
+                                    {{ l.desc }}
+                                </td>
+                                <td style="width:20%">
+                                    {{ l.operator }}
+                                </td>
+                            </tr>
+                            {% end %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
+{% block script %}
+<script type="text/javascript">
+
+</script>
+{% end %}
+

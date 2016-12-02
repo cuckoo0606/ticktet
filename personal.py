@@ -19,3 +19,8 @@ MONGODB_PASSWORD = ''
 
 # WebServer端口
 TORNADO_PORT = 8123
+
+# Msg
+CODE_ACCOUNT = "cf_cuckoo"
+CODE_PASSWORD = "cuckoo"
+CODE_TYPE = -1

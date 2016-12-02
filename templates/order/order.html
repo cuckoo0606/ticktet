@@ -1,0 +1,164 @@
+{% extends "share/master.html" %}
+{% block title %}订单查询{% end %}{% block main %}
+<div class="page-inner">
+    <div class="page-title">                                                   
+        <h3>订单查询</h3>
+    </div>
+    <div id="main-wrapper">                                                             
+        <div class="row m-t-md">
+            <div class="col-md-12">
+                <div class="row mailbox-header">
+                    <div class="col-sm-2 col-xs-1 pull-right" style="width:20%; margin-right:5%;">
+                        <form action="/order" method="get">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <select id="status" name="status" class="selectpicker" data-width="100%">
+                                        <option value="0" {{ status == "0" and "selected=selected" or "" }}>订单状态</option>
+                                        <option value="-1" {{ status == "-1" and "selected=selected" or "" }}>已预约</option>
+                                        <option value="1" {{ status == "1" and "selected=selected" or "" }}>已执行</option>
+                                        <option value="2" {{ status == "2" and "selected=selected" or "" }}>已开始</option>
+                                        <option value="3" {{ status == "3" and "selected=selected" or "" }}>已成功</option>
+                                        <option value="3" {{ status == "3" and "selected=selected" or "" }}>已失败</option>
+                                    </select>
+                                    <input id="key" name="key" type="text" class="form-control input-search" value="{{ key }}"  placeholder="关键字" style="width:120px;">
+                                    <span class="input-group-btn">
+                                        <button id="key_save" class="btn btn-success" type="submit">查找</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="mailbox-content panel">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <div id="example_wrapper" class="dataTables_wrapper">
+                                <table id="example" class="table dataTable display table-striped" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th nowrap="nowrap" style="width:8%">
+                                                <span>场次ID</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:15%">
+                                                <span>场次名称</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:6%">
+                                                <span>最小金额</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:6%">
+                                                <span>最大金额</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:6%">
+                                                <span>数量</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>抢购开始时间</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>抢购结束时间</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>创建时间</span>
+                                            </th>
+                                            <th nowrap="nowrap" style="width:10%">
+                                                <span>状态</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% set kvs = { -1 : "已预约", 1 : "已执行", 2 : "已开始", 3 : "已成功", 4 : "已失败" } %}
+                                    {% for i in orders %}
+                                        <tr class="unread">
+                                            <td>
+                                                <a href="/orderinfo?id={{ i._id }}">
+                                                    {{ "productId" in i and i.productId or "未知" }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {{ "act" in i and i.act.name or "未知" }}
+                                            </td>
+                                            <td>
+                                                {{ "minprice" in i and i.minprice or "未知" }}
+                                            </td>
+                                            <td>
+                                                {{ "maxprice" in i and i.maxprice or "未知" }}
+                                            </td>
+                                            <td>
+                                                {{ "count" in i and i.count or "未知" }}
+                                            </td>
+                                            <td>
+                                                {{ "starttime" in i and i.starttime.strftime("%Y-%m-%d %H:%M:%S") or "" }}
+                                            </td>
+                                            <td>
+                                                {{ "endtime" in i and i.endtime.strftime("%Y-%m-%d %H:%M:%S") or "" }}
+                                            </td>
+                                            <td>
+                                                {{ "created" in i and i.created.strftime("%Y-%m-%d %H:%M:%S") or "" }}
+                                            </td>
+                                            <td>
+                                                {{ "status" in i and kvs[i.status] }}
+                                            </td>
+                                        </tr>
+                                    {% end %}
+                                    </tbody>
+                                </table>
+                                {% include "share/pagination.html" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
+{% block script %}
+<script type="text/javascript">
+    $(function() {
+        $('.form_date').datetimepicker({
+            language: 'fr',
+            weekStart: 0,
+            todayBtn: 1,
+            autoclose: true,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 0,
+            maxView: 5,
+            forceParse: 0,
+            format:'yyyy-mm-dd hh:ii',
+            minuteStep:1
+        });
+
+
+        $("#conform").click(function() {
+            var data = {};
+            data['productId'] = $("#productId").val();
+            data['minprice'] = $("#minprice").val();
+            data['maxprice'] = $("#maxprice").val();
+            data['count'] = $("#count").val()
+            data['starttime'] = $("#starttime").val()
+            data['endtime'] = $("#endtime").val()
+            console.log(data);
+            $.post("/price", data, function(res){
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    showMethod: 'fadeIn',
+                    hideMethod: 'fadeOut',
+                    timeOut: 1000
+                };
+
+                if(res.status === "ok") {
+                    toastr.success('操作成功!', '操作成功');
+
+                    setTimeout(function() {
+                        window.location.href = "/price/list"
+                    }, 1000);
+                } else {
+                    toastr.error(res.desc, '操作失败');
+                }
+            });
+        });
+    })
+</script>
+{% end %}
