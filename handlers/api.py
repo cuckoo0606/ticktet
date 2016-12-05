@@ -70,7 +70,11 @@ class ApiTask(HandlerBase):
                 result.starttimestamp = order.starttimestamp
                 result.endtimestamp = order.endtimestamp
                 result.site = order.site
-
+                
+                # 更改状态
+                log = order.log
+                log.append({ "addon" : datetime.datetime.now(), "desc" : "开始抢购。", "operator" : "系统" })
+                db.order.find_one_and_update({ "_id" : order._id }, { "$set" : { "status" : 1, "log" : log } })
                 return self.json(message("success", 0, result))
             else:
                 return self.json(message("order is None", 404))
@@ -83,36 +87,48 @@ class ApiUpdate(HandlerBase):
 
     '''
         hashlib.md5(src).hexdigest()
-        更新订单状态
-            1,  状态 -1 >> 1, 添加log
+        更新订单状态: 执行 >> 成功
+            1,  状态 1 >> 2, 添加log
             2,  校验: sign :  md5(年月日+id)
+            3,  接收: 账号, 订单id, 金额, 数量
     '''
 
-    def code(self, id):
+    def code(self):
         date = time.strftime('%Y%m%d',time.localtime())
-        st = "{0}{1}".format(date, id)
 
-        return md5(st)
+        return md5(date)
 
     def post(self):
-        id = self.get_argument("id", "") or None
-        sign = self.get_argument("sign", "")
+        body = tornado.escape.json_decode(self.request.body)
+        sign = 'sign' in body and  body['sign'] or ''
+        status = 'status' in body and body['status']
+        msg = 'msg' in body and body['msg'] or ''
+        id = 'id' in body and body['id'] or None
+        data = 'data' in body and body['data'] or {}
 
-        code = self.code(id)
+        code = self.code()
         if code != sign:
             return self.json(message("invalid sign"))
-
         try:
-            order = db.order.find_one({ "_id" : ObjectId(id), "status" : -1 })
+            order = db.order.find_one({ "_id" : ObjectId(id) })
             if not order:
                 return self.json(message("order is None", 404))
         except:
             return self.json(message("invalid id"))
 
         # 更新订单
+        desc = {}
+        account = 'account' in data and data['account'] or '未知'
+        password = 'password' in data and data['password'] or '未知'
+        price = 'price' in data and data['price'] or '未知'
+        count = 'count' in data and data['count'] or '未知'
+
+        desc = "抢购{0}, 账号:{1}, 密码:{2}, 总金额{3}元, 总{4}张.({5})".format(status==0 and '成功' or '失败', \
+                account, password, price, count, msg)
+        
         log = order.log
-        log.append({ "addon" : datetime.datetime.now(), "desc" : "开始抢购。", "operator" : "系统" })
-        db.order.find_one_and_update({ "_id" : ObjectId(id) }, { "$set" : { "status" : 1, "log" : log } })
+        log.append({ "addon" : datetime.datetime.now(), "desc" : desc, "operator" : "系统" })
+        db.order.find_one_and_update({ "_id" : ObjectId(id) }, { "$set" : { "log" : log } })
         return self.json(message(0, "success"))
 
 
@@ -131,16 +147,19 @@ class ApiAccount(HandlerBase):
 
     def get(self):
         sign = self.get_argument("sign", "")
+        site = self.get_argument("site", "")
 
         code = self.code()
         if code != sign:
             return self.json(message("invalid sign"))
+        if not site:
+            return self.json(message("invalid site"))
         try:
             result = []
-            accounts = db.account.find({ "status" : 1 })
+            accounts = db.account.find({ "status" : 1, "site" : site })
             if accounts.count() > 0:
                 for i in accounts:
-                    result.append({ "account" : i.account, "password" : i.password })
+                    result.append({ "account" : i.account, "password" : i.password, 'site' : i.site })
 
             return self.json(message("success", 0, result))
         except:

@@ -67,6 +67,7 @@ class AccountEdit(HandlerBase):
 
             account.account = accountid
             account.password = password
+            account.site = 'yongle'
             account.status = int(status)
 
             db.account.save(account)
